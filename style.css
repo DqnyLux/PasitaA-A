@@ -10,7 +10,7 @@ body {
     height: 100vh;
     background-color: var(--bg-color);
     font-family: 'Courier Prime', monospace;
-    overflow: hidden; /* El body no hace scroll, solo el panel de texto */
+    overflow: hidden; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -27,15 +27,10 @@ body {
 
 /* --- LUCIÉRNAGAS --- */
 .firefly {
-    position: fixed;
-    left: 50%; top: 50%;
-    width: 4px; height: 4px;
-    background-color: #ffeb3b;
-    border-radius: 50%;
+    position: fixed; left: 50%; top: 50%; width: 4px; height: 4px;
+    background-color: #ffeb3b; border-radius: 50%;
     box-shadow: 0 0 10px #ffeb3b, 0 0 20px #ffeb3b;
-    animation: move 10s infinite alternate;
-    z-index: 1;
-    pointer-events: none;
+    animation: move 10s infinite alternate; z-index: 1; pointer-events: none;
 }
 .firefly:nth-child(2) { top: 20%; left: 20%; animation-duration: 7s; }
 .firefly:nth-child(3) { top: 80%; left: 80%; animation-duration: 8s; }
@@ -47,100 +42,88 @@ body {
     100% { transform: translate(100px, -100px) scale(1.2); opacity: 0.8; }
 }
 
-/* --- PANEL DE TEXTO (SCROLLABLE) --- */
+/* --- PANEL DE TEXTO --- */
 .text-panel {
-    position: absolute;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Centrado verticalmente */
-    align-items: center;
-    z-index: 30;
-    opacity: 0;
-    pointer-events: none; /* No bloquea clicks hasta que aparece */
-    transition: opacity 1.5s ease;
-    
-    /* VITAL PARA EL SCROLL EN MÓVIL */
-    overflow-y: auto; 
-    -webkit-overflow-scrolling: touch;
+    position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+    padding: 20px; box-sizing: border-box;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    z-index: 30; opacity: 0; pointer-events: none; transition: opacity 1.5s ease;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
-
 .text-panel.show { opacity: 1; pointer-events: auto; }
 
 #typewriter-content {
-    font-size: 1.1rem;
-    line-height: 1.5;
-    color: #444;
-    text-align: center;
-    /* Fondo semi-transparente para leer */
-    background: rgba(255, 255, 255, 0.9); 
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    max-width: 90%;
-    margin-bottom: 20px; /* Espacio para que no pegue abajo */
+    font-size: 1.1rem; line-height: 1.5; color: #444; text-align: center;
+    background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 90%; margin-bottom: 20px;
 }
 #typewriter-content strong { color: var(--heart-color); }
 #typewriter-content h1 { color: var(--heart-color); font-size: 1.5rem; margin-bottom: 10px; }
 
 #timer {
-    margin-top: 15px;
-    font-size: 0.9rem;
-    color: var(--heart-color);
-    font-weight: bold;
-    text-align: center;
-    background: rgba(255,255,255,0.9);
-    padding: 8px 15px;
-    border-radius: 20px;
+    margin-top: 15px; font-size: 0.9rem; color: var(--heart-color); font-weight: bold;
+    text-align: center; background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 20px;
 }
 .hidden { opacity: 0; }
 
-/* --- ÁREA DE ANIMACIÓN --- */
 .animation-area { width: 100%; height: 100%; position: relative; overflow: hidden; }
 #tree-wrapper { position: absolute; width: 100%; height: 100%; top: 0; left: 0; transition: filter 2s ease; }
 .blur-tree { filter: blur(3px) grayscale(0.2); opacity: 0.7; }
 #player { position: absolute; top: -9999px; }
 
-/* --- FOTOS POLAROID --- */
-#photo-gallery { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; }
+/* --- FOTOS POLAROID (CORREGIDO) --- */
+#photo-gallery { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+    pointer-events: none; /* Deja pasar clicks al fondo si no tocas foto */
+    z-index: 25; 
+}
 
 .polaroid {
-    position: absolute;
-    background: white;
-    padding: 8px 8px 25px 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    width: 110px; /* Tamaño móvil */
-    opacity: 0;
-    transform: translateY(-50px);
-    transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    pointer-events: auto; /* Para poder hacer click */
+    position: absolute; background: white; padding: 8px 8px 25px 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 110px; opacity: 0;
+    transform: translateY(-50px); transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto; /* IMPORTANTE: Habilita click en la foto */
     cursor: pointer;
 }
-.polaroid img { width: 100%; height: auto; display: block; border: 1px solid #eee; pointer-events: none;}
+.polaroid img { width: 100%; height: auto; display: block; border: 1px solid #eee; pointer-events: none; }
 
-/* Posiciones Iniciales */
 .p1 { top: 12%; left: 5%; transform: rotate(-15deg) translateY(-100px); }
 .p2 { top: 15%; right: 5%; transform: rotate(15deg) translateY(-100px); }
 .p3 { top: 40%; left: 50%; margin-left: -55px; transform: rotate(-5deg) translateY(-100px); }
 
-/* Animación de entrada */
 .polaroid.show { opacity: 1; }
 .p1.show { transform: rotate(-15deg) translateY(0); }
 .p2.show { transform: rotate(15deg) translateY(0); }
 .p3.show { transform: rotate(-5deg) translateY(0); }
 
-/* CLASE ZOOM (Al tocar la foto) */
+/* --- ZOOM CORREGIDO --- */
 .polaroid.zoomed {
-    transform: translate(0, 0) rotate(0deg) scale(2.5) !important;
-    z-index: 1000 !important;
-    top: 30% !important;
-    left: calc(50% - 55px) !important; /* Centrado horizontalmente */
-    right: auto !important;
-    margin: 0 !important;
-    transition: all 0.5s ease;
+    position: fixed !important; /* Se sale del flujo normal */
+    top: 50% !important;
+    left: 50% !important;
+    /* Centrado perfecto y grande */
+    transform: translate(-50%, -50%) scale(1) rotate(0deg) !important; 
+    width: 80vw !important; /* 80% del ancho de la pantalla */
+    max-width: 300px !important;
+    height: auto !important;
+    z-index: 9999 !important; /* Por encima de TODO */
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    transition: all 0.4s ease-out;
+}
+
+/* --- DESTELLOS AL TOCAR (NUEVO) --- */
+.touch-particle {
+    position: absolute;
+    width: 8px; height: 8px;
+    background: #ff4081;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: particle-fade 1s forwards;
+    z-index: 999;
+}
+@keyframes particle-fade {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(3); opacity: 0; }
 }
 
 /* --- HOJAS --- */
@@ -162,7 +145,6 @@ svg { width: 100%; height: 100%; fill: #ff4d6d; filter: drop-shadow(0 0 10px rgb
 @keyframes pulse { 50% { opacity: 0.5; } }
 .falling { top: 90% !important; opacity: 0; pointer-events: none; }
 
-/* PC MEDIA QUERY */
 @media (min-width: 768px) {
     .text-panel { width: 40%; align-items: flex-start; justify-content: center; background: transparent; pointer-events: none; }
     #typewriter-content { text-align: left; background: rgba(255,255,255,0.9); margin-left: 50px; }
@@ -171,5 +153,5 @@ svg { width: 100%; height: 100%; fill: #ff4d6d; filter: drop-shadow(0 0 10px rgb
     #tree-wrapper { transition: transform 2s; }
     .move-wrapper-right { transform: translateX(200px); }
     .polaroid { width: 150px; }
-    .polaroid.zoomed { left: calc(50% - 75px) !important; }
+    .polaroid.zoomed { width: 400px !important; max-width: none !important; }
 }
