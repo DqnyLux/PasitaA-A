@@ -3,13 +3,12 @@ const FECHA_INICIO = new Date("2023-08-23");
 const MENSAJE_HTML = `
 <h1>Para mi amor:</h1>
 Como las hojas de este árbol,
-mi amor por ti es infinito.
+mi amor por ti crece y se 
+vuelve infinito.
 
-Aunque el tiempo pase y el
-viento sople, mis raíces
-siempre estarán contigo.
+Eres mi refugio y mi paz.
+Gracias por ser tú.
 
-Gracias por hacerme feliz.
 <br>
 <strong>¡Te Amo!</strong>
 `;
@@ -26,6 +25,7 @@ const treeWrapper = document.getElementById('tree-wrapper');
 const textPanel = document.getElementById('textPanel');
 const typewriterContent = document.getElementById('typewriter-content');
 
+// Ajustar Canvas
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -46,40 +46,22 @@ window.onYouTubeIframeAPIReady = function() {
     });
 };
 
-// --- EFECTO DESTELLOS AL TOCAR (NUEVO) ---
-document.addEventListener('mousemove', createSparkle);
-document.addEventListener('touchstart', createSparkle);
-
-function createSparkle(e) {
-    if (!isAnimating) return; // Solo activa después del inicio
-    
-    // Obtener coordenadas (mouse o touch)
-    let x = e.clientX;
-    let y = e.clientY;
-    if (e.touches && e.touches.length > 0) {
-        x = e.touches[0].clientX;
-        y = e.touches[0].clientY;
-    }
-
-    const sparkle = document.createElement('div');
-    sparkle.classList.add('touch-particle');
-    sparkle.style.left = x + 'px';
-    sparkle.style.top = y + 'px';
-    sparkle.style.backgroundColor = heartColors[Math.floor(Math.random() * heartColors.length)];
-    document.body.appendChild(sparkle);
-
-    setTimeout(() => { sparkle.remove(); }, 1000);
-}
-
-
 // --- CLIC INICIAL ---
-heartTrigger.addEventListener('click', () => {
+heartTrigger.addEventListener('click', function(e) {
     if(isAnimating) return;
     isAnimating = true;
     instruction.style.opacity = 0;
     
+    // Música Iframe Backup + API
+    const musicIframe = document.createElement('iframe');
+    musicIframe.setAttribute('src', `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}&controls=0&showinfo=0&autohide=1&mute=0&playsinline=1`);
+    musicIframe.style.cssText = "width:1px;height:1px;opacity:0;position:absolute;";
+    musicIframe.allow = "autoplay"; 
+    document.body.appendChild(musicIframe);
+    
     if (player && player.playVideo) player.playVideo();
 
+    // Animación Gota
     heartPath.setAttribute('d', 'M12,2c-5,0-9,4-9,9c0,5,9,13,9,13s9-8,9-13C21,6,17,2,12,2z');
     heartPath.style.fill = "#8d6e63";
 
@@ -91,178 +73,140 @@ heartTrigger.addEventListener('click', () => {
     }, 500);
 });
 
-// --- ÁRBOL ---
+// --- DIBUJAR ÁRBOL ---
 function drawResponsiveTree() {
     const startX = canvas.width / 2;
     const startY = canvas.height;
-    
-    const trunkHeight = canvas.height * 0.35; 
+    const trunkHeight = canvas.height * 0.4; 
     const trunkTopY = startY - trunkHeight;
-    const trunkWidth = Math.max(10, Math.min(20, canvas.width * 0.04)); 
+    const trunkWidth = Math.max(8, Math.min(18, canvas.width * 0.04)); // Tronco fino
 
     ctx.beginPath();
     ctx.moveTo(startX, startY);
     ctx.quadraticCurveTo(startX + (trunkWidth/3), startY - trunkHeight / 2, startX, trunkTopY);
-    ctx.strokeStyle = "#5d4037";
-    ctx.lineWidth = trunkWidth;
-    ctx.lineCap = "round";
-    ctx.stroke();
+    ctx.strokeStyle = "#5d4037"; ctx.lineWidth = trunkWidth; ctx.lineCap = "round"; ctx.stroke();
 
-    setTimeout(() => {
-        let h = trunkHeight * 0.7;
-        growSubBranches(startX, startY - h, h*0.4, -Math.PI/2 - 0.7, trunkWidth*0.7, 3);
-        growSubBranches(startX, startY - h, h*0.4, -Math.PI/2 + 0.7, trunkWidth*0.7, 3);
-    }, 200);
+    // Ramas rápidas
+    const grow = (x, y, l, a, w, d) => {
+        if(d<=0) return;
+        const ex = x + l * Math.cos(a); const ey = y + l * Math.sin(a);
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.quadraticCurveTo(x, y - l*0.2, ex, ey);
+        ctx.strokeStyle = "#5d4037"; ctx.lineWidth = w; ctx.stroke();
+        setTimeout(() => { grow(ex, ey, l*0.6, a-0.5, w*0.7, d-1); grow(ex, ey, l*0.6, a+0.5, w*0.7, d-1); }, 100);
+    };
 
-    setTimeout(() => {
-        let h = trunkHeight * 0.9;
-        growSubBranches(startX, startY - h, h*0.3, -Math.PI/2 - 0.4, trunkWidth*0.6, 3);
-        growSubBranches(startX, startY - h, h*0.3, -Math.PI/2 + 0.4, trunkWidth*0.6, 3);
-    }, 400);
+    setTimeout(() => grow(startX, startY - trunkHeight*0.7, trunkHeight*0.25, -Math.PI/2 - 0.6, trunkWidth*0.7, 3), 200);
+    setTimeout(() => grow(startX, startY - trunkHeight*0.7, trunkHeight*0.25, -Math.PI/2 + 0.6, trunkWidth*0.7, 3), 200);
+    setTimeout(() => grow(startX, trunkTopY, trunkHeight*0.2, -Math.PI/2 - 0.3, trunkWidth*0.6, 3), 500);
+    setTimeout(() => grow(startX, trunkTopY, trunkHeight*0.2, -Math.PI/2 + 0.3, trunkWidth*0.6, 3), 500);
 
-    setTimeout(() => {
-        growSubBranches(startX, trunkTopY, trunkHeight*0.25, -Math.PI/2 - 0.2, trunkWidth*0.5, 3);
-        growSubBranches(startX, trunkTopY, trunkHeight*0.25, -Math.PI/2 + 0.2, trunkWidth*0.5, 3);
-    }, 600);
-
-    setTimeout(() => {
-        if(isAnimating) generateDenseHearts(trunkTopY);
-    }, 1500);
+    setTimeout(() => { if(isAnimating) generateHearts(trunkTopY); }, 1200);
 }
 
-function growSubBranches(x, y, len, angle, width, depth) {
-    if (depth <= 0) return;
-    const endX = x + len * Math.cos(angle);
-    const endY = y + len * Math.sin(angle);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.quadraticCurveTo(x, y - len*0.2, endX, endY);
-    ctx.strokeStyle = "#5d4037";
-    ctx.lineWidth = width;
-    ctx.lineCap = "round";
-    ctx.stroke();
-    setTimeout(() => {
-        growSubBranches(endX, endY, len*0.5, angle - 0.4, width*0.7, depth - 1);
-        growSubBranches(endX, endY, len*0.5, angle + 0.4, width*0.7, depth - 1);
-    }, 100);
-}
-
-function generateDenseHearts(trunkTopY) {
+function generateHearts(trunkTopY) {
     const centerX = canvas.width / 2;
-    const centerY = trunkTopY - (canvas.height * 0.1); 
-    const scale = Math.min(canvas.width, canvas.height) * 0.025; 
-    const totalLeaves = 900; 
-
+    const centerY = trunkTopY - (canvas.height * 0.05);
+    const scale = Math.min(canvas.width, canvas.height) * 0.025;
     let count = 0;
-    const interval = setInterval(() => {
-        if (count >= totalLeaves) {
-            clearInterval(interval);
-            setTimeout(startSequenceAndInfiniteFall, 1000);
+
+    const int = setInterval(() => {
+        if (count >= 800) {
+            clearInterval(int);
+            startFinalSequence();
             return;
         }
-        for(let i=0; i<5; i++) {
-            const pos = getHeartPosition(centerX, centerY, scale);
-            createFixedLeaf(pos.x, pos.y, centerY);
+        for(let i=0; i<8; i++) { // Muy rápido
+            let t = Math.random() * Math.PI * 2;
+            let r = Math.sqrt(Math.random());
+            let x = 16 * Math.pow(Math.sin(t), 3);
+            let y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+            
+            // Posición final
+            let fx = centerX + (x * scale * r) + (Math.random()*10-5);
+            let fy = centerY + (y * scale * r) + (Math.random()*10-5);
+            
+            const el = document.createElement('div');
+            el.classList.add('flower'); el.innerHTML = '❤';
+            el.style.left = fx+'px'; el.style.top = fy+'px';
+            el.style.color = heartColors[Math.floor(Math.random()*heartColors.length)];
+            
+            let s = Math.random()*10+5;
+            if(fy > centerY + (canvas.height*0.1)) s*=0.6;
+            el.style.setProperty('--size', s+'px');
+            el.style.transform = `translate(-50%, -50%) rotate(${Math.random()*60-30}deg)`;
+            
+            treeWrapper.appendChild(el);
+            requestAnimationFrame(() => el.classList.add('bloom'));
             count++;
         }
     }, 1);
 }
 
-function getHeartPosition(centerX, centerY, scale) {
-    let t = Math.random() * Math.PI * 2;
-    let r = Math.sqrt(Math.random());
-    let x = 16 * Math.pow(Math.sin(t), 3);
-    let y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-    return { 
-        x: centerX + (x * scale * r) + (Math.random() * 10 - 5), 
-        y: centerY + (y * scale * r) + (Math.random() * 10 - 5) 
-    };
-}
+// --- SECUENCIA FINAL ---
+function startFinalSequence() {
+    // 1. Mostrar Fotos
+    showPhotos();
 
-function createFixedLeaf(x, y, centerY) {
-    const el = document.createElement('div');
-    el.classList.add('flower'); el.innerHTML = '❤';
-    el.style.left = x + 'px'; el.style.top = y + 'px';
-    el.style.color = heartColors[Math.floor(Math.random() * heartColors.length)];
-    let size = Math.random() * 10 + 5; 
-    if (y > centerY + (canvas.height*0.15)) size *= 0.6; 
-    el.style.setProperty('--size', `${size}px`);
-    const rot = Math.random()*60 - 30;
-    el.style.transform = `translate(-50%, -50%) rotate(${rot}deg)`;
-    treeWrapper.appendChild(el);
-    leavesArray.push({el, x, y});
-    requestAnimationFrame(() => el.classList.add('bloom'));
-}
-
-function startSequenceAndInfiniteFall() {
-    setInterval(createInfiniteFallingHeart, 200);
-
+    // 2. Mostrar Texto (Retraso pequeño)
     setTimeout(() => {
-        if (window.innerWidth > 768) {
-             treeWrapper.classList.add('move-wrapper-right');
-        } else {
-             treeWrapper.classList.add('blur-tree');
-        }
-        
-        showPhotos();
+        textPanel.classList.add('show');
+        typeWriterReal(MENSAJE_HTML, typewriterContent);
+    }, 1500);
 
-        setTimeout(() => {
-            textPanel.classList.add('show');
-            setTimeout(() => {
-                 typeWriterReal(MENSAJE_HTML, typewriterContent);
-            }, 500);
-        }, 1500);
-        
-    }, 1000);
+    // 3. Caída infinita suave
+    setInterval(() => {
+        const el = document.createElement('div');
+        el.classList.add('infinite-flower'); el.innerHTML = '❤';
+        el.style.left = (Math.random()*canvas.width)+'px'; 
+        el.style.top = (canvas.height*0.2)+'px';
+        el.style.color = heartColors[Math.floor(Math.random()*heartColors.length)];
+        el.style.setProperty('--size', (Math.random()*8+4)+'px');
+        treeWrapper.appendChild(el);
+        setTimeout(()=>el.remove(), 5000);
+    }, 300);
 }
 
-// --- FOTOS CON ZOOM MEJORADO ---
+// --- LÓGICA DE FOTOS (ZOOM SOLIDO) ---
 function showPhotos() {
     const photos = document.querySelectorAll('.polaroid');
-    photos.forEach((p, index) => {
-        setTimeout(() => p.classList.add('show'), index * 600);
-        
-        // Evento Click/Touch
+    photos.forEach((p, i) => {
+        setTimeout(() => p.classList.add('show'), i * 400);
+
+        // EVENTO DE ZOOM
         p.addEventListener('click', function(e) {
-            e.stopPropagation();
+            e.stopPropagation(); // Evitar que el click cierre inmediatamente
             
-            const isZoomed = this.classList.contains('zoomed');
-            
-            // Resetear todas
-            photos.forEach(ph => ph.classList.remove('zoomed'));
-            
-            // Si no estaba zoomeada, hacer zoom
-            if (!isZoomed) {
+            // Si ya tiene zoom, quitárselo
+            if(this.classList.contains('zoomed')) {
+                this.classList.remove('zoomed');
+            } else {
+                // Quitar zoom a otras
+                photos.forEach(x => x.classList.remove('zoomed'));
+                // Poner zoom a esta
                 this.classList.add('zoomed');
-                
-                // Auto-cerrar a los 4 segundos
-                setTimeout(() => {
-                    this.classList.remove('zoomed');
-                }, 4000);
             }
         });
     });
-    
-    // Cerrar si tocas fuera
+
+    // Clic fuera para cerrar
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.polaroid')) {
-            photos.forEach(ph => ph.classList.remove('zoomed'));
+        if(!e.target.closest('.polaroid')) {
+            photos.forEach(x => x.classList.remove('zoomed'));
         }
     });
 }
 
-function typeWriterReal(html, element) {
-    element.innerHTML = "";
-    let i = 0;
+function typeWriterReal(html, el) {
+    el.innerHTML = ""; let i = 0;
     function type() {
-        if (i < html.length) {
-            let char = html.charAt(i);
-            if (char === "<") {
+        if(i < html.length) {
+            let c = html.charAt(i);
+            if(c === "<") {
                 let tag = "";
-                while (html.charAt(i) !== ">" && i < html.length) { tag += html.charAt(i); i++; }
-                tag += ">"; i++; element.innerHTML += tag; type();
+                while(html.charAt(i) !== ">") { tag += html.charAt(i); i++; }
+                tag += ">"; i++; el.innerHTML += tag; type();
             } else {
-                element.innerHTML += char; i++; setTimeout(type, 50);
+                el.innerHTML += c; i++; setTimeout(type, 50);
             }
         } else {
             document.getElementById('timer').classList.remove('hidden');
@@ -270,26 +214,6 @@ function typeWriterReal(html, element) {
         }
     }
     type();
-}
-
-function createInfiniteFallingHeart() {
-    const centerX = canvas.width / 2;
-    const trunkHeight = canvas.height * 0.35;
-    const trunkTopY = canvas.height - trunkHeight;
-    const centerY = trunkTopY - (canvas.height * 0.1);
-    const scale = Math.min(canvas.width, canvas.height) * 0.025;
-
-    const pos = getHeartPosition(centerX, centerY, scale);
-    const el = document.createElement('div');
-    el.classList.add('infinite-flower'); el.innerHTML = '❤';
-    el.style.setProperty('--start-x', pos.x + 'px');
-    el.style.setProperty('--start-y', pos.y + 'px');
-    el.style.left = pos.x + 'px'; el.style.top = pos.y + 'px';
-    el.style.color = heartColors[Math.floor(Math.random() * heartColors.length)];
-    const size = Math.random() * 8 + 4;
-    el.style.setProperty('--size', `${size}px`);
-    treeWrapper.appendChild(el);
-    setTimeout(() => { el.remove(); }, 6000);
 }
 
 function startTimer() {
